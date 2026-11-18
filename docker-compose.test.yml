@@ -1,0 +1,20 @@
+# docker-compose.test.yml — base PostgreSQL jetable pour les tests d'intégration
+
+services:
+  db-test:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: voicecrm_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test_password_local_only
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d voicecrm_test"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    # Pas de volume : la base est détruite à chaque arrêt du conteneur.
+    tmpfs:
+      - /var/lib/postgresql/data

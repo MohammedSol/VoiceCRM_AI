@@ -1,0 +1,27 @@
+# .gitattributes — force LF line endings for Docker and shell files
+# (important for Windows developers using Docker Desktop)
+
+# Default: normalize line endings to LF in the repo
+* text=auto eol=lf
+
+# Windows-only files keep CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Force LF for Docker and shell
+Dockerfile text eol=lf
+*.dockerfile text eol=lf
+*.sh text eol=lf
+Makefile text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Binary files — no line ending conversion
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary
+*.woff binary
+*.ttf binary
+*.lock binary
