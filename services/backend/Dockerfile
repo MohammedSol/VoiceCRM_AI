@@ -2,28 +2,30 @@
 # Build context: repository root (to allow COPY packages/)
 FROM python:3.12-slim AS base
 
-WORKDIR /app
+WORKDIR /workspace
 
 # Install uv
 RUN pip install --no-cache-dir uv==0.11.1
 
-# Copy dependency files first (layer cache)
-COPY services/backend/pyproject.toml services/backend/uv.lock ./
+# Copy local shared packages before resolving path dependencies
+COPY packages/contracts/ ./packages/contracts/
+COPY packages/validation/ ./packages/validation/
 
-# Install production dependencies only
+# Copy dependency files and install production dependencies
+COPY services/backend/pyproject.toml services/backend/uv.lock ./services/backend/
+WORKDIR /workspace/services/backend
 RUN uv sync --frozen --no-dev
 
-# Copy shared packages
-COPY packages/ /packages/
-
-# Copy application code
+# Copy application code and migration assets
 COPY services/backend/app/ ./app/
+COPY services/backend/alembic.ini ./alembic.ini
+COPY services/backend/alembic/ ./alembic/
 
 # Non-root user for security
-RUN adduser --disabled-password --gecos "" appuser && chown -R appuser /app
+RUN adduser --disabled-password --gecos "" appuser && chown -R appuser /workspace/services/backend
 USER appuser
 
-ENV PATH="/app/.venv/bin:$PATH"
+ENV PATH="/workspace/services/backend/.venv/bin:$PATH"
 
 EXPOSE 8000
 
